@@ -1,0 +1,9 @@
+{
+  "meetup": {
+    "groupUrlname": "self-test-group",
+    "venues": {
+      "online": 999999999,
+      "Test Venue, Testville, ts": 888888888
+    }
+  }
+}

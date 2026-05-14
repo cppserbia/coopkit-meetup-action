@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate action.yml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint action.yml
+        # Quick sanity check on action.yml structure. actionlint covers
+        # workflow files but not action.yml itself; we validate it by trying
+        # to use it (the self-test job below).
+        run: |
+          test -f action.yml
+          # Required top-level keys
+          for key in name description runs inputs; do
+            grep -qE "^${key}:" action.yml || { echo "Missing top-level: $key"; exit 1; }
+          done
+          # action must be a composite action for now
+          grep -qE 'using:\s*composite' action.yml || { echo "Expected composite action"; exit 1; }
+          echo "action.yml looks structurally OK"
+
+  self-test:
+    name: Self-test (dry-run)
+    runs-on: ubuntu-latest
+    # NOTE: this job depends on @coopkit/meetup being published to npm.
+    # Before the first publish, it will fail at the `bunx` step with
+    # "package not found". After publish, it should pass on every run.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action in dry-run mode against fixture config
+        uses: ./
+        with:
+          title: "Self-test event"
+          date: "2026-12-01T18:00:00Z"
+          duration: PT1H
+          venue-key: online
+          description: "This is a CI self-test; no API call should happen."
+          dry-run: "true"
+          config-path: tests/fixtures/coopkit.config.json
+          # Dummy values — `dry-run: true` short-circuits before any auth.
+          meetup-client-key: dummy
+          meetup-member-id: dummy
+          meetup-signing-key-id: dummy
+          meetup-private-key: dummy
