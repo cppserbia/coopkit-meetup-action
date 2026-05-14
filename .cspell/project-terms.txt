@@ -1,0 +1,12 @@
+# Project-specific technical terms for the coopkit-meetup-action repo.
+# One word per line. Comments begin with '#'.
+bunx
+coopkit
+cppserbia
+frontmatter
+monorepo
+pipefail
+slugified
+Testville
+urlname
+venueKey

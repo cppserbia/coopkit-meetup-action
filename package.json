@@ -1,0 +1,17 @@
+{
+  "name": "coopkit-meetup-action",
+  "private": true,
+  "version": "0.0.0",
+  "description": "GitHub Action: Create a Meetup.com Draft event from workflow inputs.",
+  "license": "MIT",
+  "scripts": {
+    "spell": "cspell --no-progress --no-summary \"**/*.{md,yml,yaml,json}\""
+  },
+  "devDependencies": {
+    "@cspell/dict-fullstack": "^3.2.9",
+    "@cspell/dict-git": "^3.1.0",
+    "@cspell/dict-markdown": "^2.0.16",
+    "@cspell/dict-shell": "^1.1.2",
+    "cspell": "^10.0.0"
+  }
+}

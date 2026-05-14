@@ -1,0 +1,32 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "dictionaries": [
+    "en_US",
+    "node",
+    "npm",
+    "companies",
+    "softwareTerms",
+    "misc",
+    "fullstack",
+    "git",
+    "markdown",
+    "shell",
+    "project-terms"
+  ],
+  "import": [
+    "@cspell/dict-fullstack/cspell-ext.json",
+    "@cspell/dict-git/cspell-ext.json",
+    "@cspell/dict-markdown/cspell-ext.json",
+    "@cspell/dict-shell/cspell-ext.json"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "project-terms",
+      "path": "./.cspell/project-terms.txt",
+      "addWords": true
+    }
+  ],
+  "ignorePaths": ["node_modules/**", "package-lock.json", "pnpm-lock.yaml", "bun.lock"],
+  "ignoreRegExpList": ["Urls", "Email", "HexValues", "Base64"]
+}
