@@ -1,9 +1,6 @@
 name: Create Meetup Draft Event
 author: coopkit
-description: >-
-  Create a Meetup.com Draft event from form inputs. Best used with a
-  `workflow_dispatch` trigger so maintainers can create events directly from
-  the Actions tab. Powered by the @coopkit/meetup npm package.
+description: Create a Meetup.com Draft event from workflow inputs. Powered by @coopkit/meetup.
 
 # Marketplace branding
 branding:
