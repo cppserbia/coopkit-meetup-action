@@ -123,12 +123,53 @@ Open the **Actions** tab → **Create Meetup Event** → **Run workflow**, fill 
 | `meetup-signing-key-id` | yes | — | Pipe from `${{ secrets.MEETUP_SIGNING_KEY_ID }}`. |
 | `meetup-private-key` | yes | — | Pipe from `${{ secrets.MEETUP_PRIVATE_KEY }}`. |
 
+## Outputs
+
+| Output | Description |
+|---|---|
+| `status` | `created` or `dry-run`. |
+| `event-id` | Numeric Meetup event ID of the created draft (empty on dry-run). |
+| `event-url` | URL of the created Meetup draft (empty on dry-run). |
+| `photo-attached` | `true` if a featured photo was attached, else `false`. |
+
+> Requires `@coopkit/meetup >= 0.2.0` (the default `package-version: 0` already resolves to it).
+
+### Write-back example
+
+Capture the created event's URL and comment it back on the triggering issue/PR, or commit it to a file:
+
+```yaml
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+      - id: meetup
+        uses: cppserbia/coopkit-meetup-action@v1
+        with:
+          title: ${{ inputs.title }}
+          date: ${{ inputs.date }}
+          venue-key: ${{ inputs.venue-key }}
+          meetup-client-key: ${{ secrets.MEETUP_CLIENT_KEY }}
+          meetup-member-id: ${{ secrets.MEETUP_MEMBER_ID }}
+          meetup-signing-key-id: ${{ secrets.MEETUP_SIGNING_KEY_ID }}
+          meetup-private-key: ${{ secrets.MEETUP_PRIVATE_KEY }}
+
+      - name: Announce the draft
+        if: steps.meetup.outputs.status == 'created'
+        run: echo "Created ${{ steps.meetup.outputs.event-url }} (id ${{ steps.meetup.outputs.event-id }})"
+```
+
 ## How it works
 
 1. Installs Bun on the runner.
 2. Writes the JWT signing private key to a temp file (deleted after).
 3. Builds a `NormalizedEvent` JSON from the inputs using `jq` (quote-safe).
-4. Invokes `bunx @coopkit/meetup@<version> create-from-json` which authenticates against the Meetup GraphQL API, creates a Draft event, optionally attaches a featured photo.
+4. Invokes `bunx @coopkit/meetup@<version> create-from-json --output <file>`, which authenticates against the Meetup GraphQL API, creates a Draft event, and optionally attaches a featured photo.
+5. Reads the result JSON and exposes `status` / `event-id` / `event-url` / `photo-attached` as step outputs.
 
 ## Versioning
 

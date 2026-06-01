@@ -79,6 +79,20 @@ inputs:
     description: JWT signing private-key PEM contents. Pipe from the MEETUP_PRIVATE_KEY secret.
     required: true
 
+outputs:
+  status:
+    description: "Outcome of the run: `created` or `dry-run`."
+    value: ${{ steps.create.outputs.status }}
+  event-id:
+    description: Numeric Meetup event ID of the created draft (empty on dry-run).
+    value: ${{ steps.create.outputs.event-id }}
+  event-url:
+    description: URL of the created Meetup draft (empty on dry-run).
+    value: ${{ steps.create.outputs.event-url }}
+  photo-attached:
+    description: "`true` if a featured photo was attached, else `false`."
+    value: ${{ steps.create.outputs.photo-attached }}
+
 runs:
   using: composite
   steps:
@@ -145,6 +159,7 @@ runs:
         cat "$EVENT_JSON_PATH"
 
     - name: Create Meetup draft event
+      id: create
       env:
         MEETUP_CLIENT_KEY: ${{ inputs.meetup-client-key }}
         MEETUP_MEMBER_ID: ${{ inputs.meetup-member-id }}
@@ -157,10 +172,20 @@ runs:
         if [ "${{ inputs.dry-run }}" = "true" ]; then
           DRY_RUN_FLAG="--dry-run"
         fi
+        RESULT="$RUNNER_TEMP/coopkit-result.json"
         bunx --bun "@coopkit/meetup@${{ inputs.package-version }}" create-from-json \
           --config "${{ inputs.config-path }}" \
+          --output "$RESULT" \
           $DRY_RUN_FLAG \
           "${{ steps.build.outputs.event-json }}"
+
+        # Bridge the CLI's JSON result into step outputs (requires @coopkit/meetup >= 0.2.0).
+        {
+          echo "status=$(jq -r '.status // ""' "$RESULT")"
+          echo "event-id=$(jq -r '.eventId // ""' "$RESULT")"
+          echo "event-url=$(jq -r '.eventUrl // ""' "$RESULT")"
+          echo "photo-attached=$(jq -r '.photoAttached // false' "$RESULT")"
+        } >> "$GITHUB_OUTPUT"
 
     - name: Clean up private key
       if: always() && steps.key.outputs.path != ''
