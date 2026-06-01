@@ -116,7 +116,7 @@ Open the **Actions** tab → **Create Meetup Event** → **Run workflow**, fill 
 | `id` | no | _auto_ | Event ID. Default is `YYYY-MM-DD-slugified-title`. |
 | `dry-run` | no | `false` | Skip the API call; print the payload. |
 | `config-path` | no | `coopkit.config.json` | Path to your config. |
-| `package-version` | no | `latest` | `@coopkit/meetup` version. |
+| `package-version` | no | `0` | `@coopkit/meetup` version/range/tag to run (default: latest `0.x`). |
 | `bun-version` | no | `1.3.13` | Bun runtime version. |
 | `meetup-client-key` | yes | — | Pipe from `${{ secrets.MEETUP_CLIENT_KEY }}`. |
 | `meetup-member-id` | yes | — | Pipe from `${{ secrets.MEETUP_MEMBER_ID }}`. |

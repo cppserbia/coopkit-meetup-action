@@ -53,9 +53,12 @@ inputs:
     required: false
     default: coopkit.config.json
   package-version:
-    description: '`@coopkit/meetup` npm version or dist-tag to invoke.'
+    description: >-
+      `@coopkit/meetup` npm version, range, or dist-tag to invoke. Defaults to
+      `0` (the latest 0.x release) so a future breaking change can't change
+      this action's behavior without an explicit bump.
     required: false
-    default: latest
+    default: "0"
   bun-version:
     description: Bun version to install on the runner.
     required: false
