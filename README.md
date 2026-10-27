@@ -114,6 +114,10 @@ Open the **Actions** tab → **Create Meetup Event** → **Run workflow**, fill 
 | `description` | no | `""` | Event description (Markdown). |
 | `image-url` | no | `""` | Featured photo URL. |
 | `id` | no | _auto_ | Event ID. Default is `YYYY-MM-DD-slugified-title`. |
+| `speaker-name` | no | `""` | Speaker's display name. The speaker is sent only when this is set. See [Speaker profile](#speaker-profile-meetup-pro). |
+| `speaker-bio` | no | `""` | Speaker bio (Markdown, multi-line). Meetup requires it: a speaker without one is skipped. |
+| `speaker-urls` | no | `""` | Profile URLs (site, LinkedIn, GitHub, …), one per line. Lines are trimmed, blank lines dropped. |
+| `speaker-avatar-url` | no | `""` | Headshot URL. Uploaded as the speaker photo only with `@coopkit/meetup` >= 0.4.0 and the `meetup.speakerPhoto` opt-in; ignored otherwise. |
 | `dry-run` | no | `false` | Skip the API call; print the payload. |
 | `config-path` | no | `coopkit.config.json` | Path to your config. |
 | `package-version` | no | `0` | `@coopkit/meetup` version/range/tag to run (default: latest `0.x`). |
@@ -162,6 +166,55 @@ jobs:
         if: steps.meetup.outputs.status == 'created'
         run: echo "Created ${{ steps.meetup.outputs.event-url }} (id ${{ steps.meetup.outputs.event-id }})"
 ```
+
+## Speaker profile (Meetup Pro)
+
+Events in a Meetup **Pro** network can show a speaker profile: name, bio and profile links. Set the `speaker-*` inputs to send one:
+
+```yaml
+- uses: cppserbia/coopkit-meetup-action@v1
+  with:
+    title: "Modern C++ Ranges in Practice"
+    date: "2026-11-18T17:00:00Z"
+    venue-key: online
+    speaker-name: "Jane Doe"
+    speaker-bio: |
+      Jane works on **compilers** at Example Corp.
+
+      She maintains a `ranges` library and writes about C++.
+    speaker-urls: |
+      https://jane.example.com/
+      https://www.linkedin.com/in/janedoe/
+      https://github.com/janedoe
+    speaker-avatar-url: https://images.example.com/speakers/jane.png
+    meetup-client-key: ${{ secrets.MEETUP_CLIENT_KEY }}
+    meetup-member-id: ${{ secrets.MEETUP_MEMBER_ID }}
+    meetup-signing-key-id: ${{ secrets.MEETUP_SIGNING_KEY_ID }}
+    meetup-private-key: ${{ secrets.MEETUP_PRIVATE_KEY }}
+```
+
+The action adds them to the event JSON as `speaker` (`name`, `bioMarkdown`, `socialUrls`, `avatarUrl`). What reaches Meetup depends on the following:
+
+- **The group must opt in.** Groups outside a Pro network reject the field, so `@coopkit/meetup` sends it only when `coopkit.config.json` says so:
+
+  ```json
+  {
+    "meetup": {
+      "groupUrlname": "your-group-slug",
+      "speakerDetails": true,
+      "venues": { "online": 12345678 }
+    }
+  }
+  ```
+
+  `speakerDetails` can also be a list of group urlnames, when only some of your groups are in the network. Without the opt-in, the speaker inputs are accepted and silently left out of the Meetup payload.
+- **The bio is required.** Meetup needs a non-empty speaker description, so a speaker without `speaker-bio` is skipped, with a warning in the log.
+- **`speaker-name` gates the rest.** With it empty, no speaker is sent, even if the other `speaker-*` inputs are set.
+- **Profile links are classified by host** into Meetup's services (LinkedIn, X/Twitter, Instagram, Facebook, …). Anything else, such as a personal site or GitHub, is sent as `OTHER`.
+- **The photo is a separate opt-in.** The headshot (`speaker-avatar-url`) is uploaded to the event and attached to the speaker profile only when `coopkit.config.json` also sets `"speakerPhoto": true` (or a list of group urlnames, like `speakerDetails`). Without it the URL is ignored, so passing it is always safe.
+- **Version requirements.** Speaker profiles need `@coopkit/meetup >= 0.3.0`; the speaker photo needs `>= 0.4.0`. The default `package-version: 0` resolves to the latest 0.x release, which covers both.
+
+Callers that don't set the `speaker-*` inputs get exactly the same event JSON as before.
 
 ## How it works
 

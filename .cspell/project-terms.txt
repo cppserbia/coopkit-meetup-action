@@ -10,3 +10,11 @@ slugified
 Testville
 urlname
 venueKey
+gsub
+headshot
+urlnames
+# Speaker name in the Unicode test fixtures (Serbian Latin + Cyrillic)
+Đorđe
+Šašić
+Ђорђе
+Шашић

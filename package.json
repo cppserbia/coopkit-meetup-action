@@ -5,7 +5,8 @@
   "description": "GitHub Action: Create a Meetup.com Draft event from workflow inputs.",
   "license": "MIT",
   "scripts": {
-    "spell": "cspell --no-progress --no-summary \"**/*.{md,yml,yaml,json}\""
+    "spell": "cspell --no-progress --no-summary \"**/*.{md,yml,yaml,json}\"",
+    "test": "bun test"
   },
   "devDependencies": {
     "@cspell/dict-fullstack": "^3.2.9",

@@ -1,0 +1,17 @@
+{
+  "id": "2026-12-01-self-test-event",
+  "title": "Self-test event",
+  "date": "2026-12-01T18:00:00Z",
+  "duration": "PT2H",
+  "venueKey": "online",
+  "speaker": {
+    "name": "Jane Doe",
+    "bioMarkdown": "Jane works on **compilers** at Example Corp.\n\nShe maintains a `ranges` library and\nwrites about C++ at night.\n",
+    "socialUrls": [
+      "https://jane.example.test/",
+      "https://www.linkedin.com/in/janedoe/",
+      "https://github.com/janedoe"
+    ],
+    "avatarUrl": "https://images.example.test/speaker-avatars/jane.png"
+  }
+}

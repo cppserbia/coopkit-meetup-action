@@ -1,0 +1,9 @@
+{
+  "id": "custom-id",
+  "title": "Self-test event",
+  "date": "2026-12-01T18:00:00Z",
+  "duration": "PT1H30M",
+  "venueKey": "online",
+  "description": "Line one with \"quotes\" and $dollar.\n\n- a bullet\n",
+  "imageUrl": "https://images.example.test/banner.jpg"
+}
