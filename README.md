@@ -117,7 +117,7 @@ Open the **Actions** tab → **Create Meetup Event** → **Run workflow**, fill 
 | `speaker-name` | no | `""` | Speaker's display name. The speaker is sent only when this is set. See [Speaker profile](#speaker-profile-meetup-pro). |
 | `speaker-bio` | no | `""` | Speaker bio (Markdown, multi-line). Meetup requires it: a speaker without one is skipped. |
 | `speaker-urls` | no | `""` | Profile URLs (site, LinkedIn, GitHub, …), one per line. Lines are trimmed, blank lines dropped. |
-| `speaker-avatar-url` | no | `""` | Headshot URL. Passed through; uploading it needs a future `@coopkit/meetup` release. |
+| `speaker-avatar-url` | no | `""` | Headshot URL. Uploaded as the speaker photo only with `@coopkit/meetup` >= 0.4.0 and the `meetup.speakerPhoto` opt-in; ignored otherwise. |
 | `dry-run` | no | `false` | Skip the API call; print the payload. |
 | `config-path` | no | `coopkit.config.json` | Path to your config. |
 | `package-version` | no | `0` | `@coopkit/meetup` version/range/tag to run (default: latest `0.x`). |
@@ -211,7 +211,8 @@ The action adds them to the event JSON as `speaker` (`name`, `bioMarkdown`, `soc
 - **The bio is required.** Meetup needs a non-empty speaker description, so a speaker without `speaker-bio` is skipped, with a warning in the log.
 - **`speaker-name` gates the rest.** With it empty, no speaker is sent, even if the other `speaker-*` inputs are set.
 - **Profile links are classified by host** into Meetup's services (LinkedIn, X/Twitter, Instagram, Facebook, …). Anything else, such as a personal site or GitHub, is sent as `OTHER`.
-- **Version requirements.** Speaker profiles need `@coopkit/meetup >= 0.3.0`; the default `package-version: 0` already resolves to it. The headshot (`speaker-avatar-url`) is passed through, but uploading it as the speaker photo arrives in a later `@coopkit/meetup` release; until then, the CLI ignores it.
+- **The photo is a separate opt-in.** The headshot (`speaker-avatar-url`) is uploaded to the event and attached to the speaker profile only when `coopkit.config.json` also sets `"speakerPhoto": true` (or a list of group urlnames, like `speakerDetails`). Without it the URL is ignored, so passing it is always safe.
+- **Version requirements.** Speaker profiles need `@coopkit/meetup >= 0.3.0`; the speaker photo needs `>= 0.4.0`. The default `package-version: 0` resolves to the latest 0.x release, which covers both.
 
 Callers that don't set the `speaker-*` inputs get exactly the same event JSON as before.
 

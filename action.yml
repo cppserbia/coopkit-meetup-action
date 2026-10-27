@@ -66,8 +66,9 @@ inputs:
   speaker-avatar-url:
     description: >-
       URL of the speaker's headshot. Optional. Passed through as `avatarUrl`;
-      uploading it as the speaker photo needs a future `@coopkit/meetup`
-      release, and older versions ignore it.
+      it is uploaded as the speaker photo only with `@coopkit/meetup` >= 0.4.0
+      and the `meetup.speakerPhoto` opt-in in coopkit.config.json, and is
+      ignored otherwise.
     required: false
     default: ""
 
