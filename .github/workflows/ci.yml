@@ -52,6 +52,22 @@ jobs:
       - name: Spell check
         run: bun run spell
 
+  test:
+    name: Unit tests (event JSON)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.13"
+
+      - name: Test the Build NormalizedEvent JSON step
+        # Runs action.yml's build step with bash + jq and compares the output
+        # with tests/fixtures/event-json/*.json byte for byte.
+        run: bun test
+
   self-test:
     name: Self-test (dry-run)
     runs-on: ubuntu-latest
@@ -91,3 +107,35 @@ jobs:
           [ -z "$EVENT_ID" ] || { echo "::error::expected empty event-id on dry-run, got '$EVENT_ID'"; exit 1; }
           [ -z "$EVENT_URL" ] || { echo "::error::expected empty event-url on dry-run, got '$EVENT_URL'"; exit 1; }
           echo "Outputs OK."
+
+      - name: Run action in dry-run mode with a speaker profile
+        id: run-speaker
+        uses: ./
+        with:
+          title: "Self-test event with a speaker"
+          date: "2026-12-01T18:00:00Z"
+          venue-key: online
+          speaker-name: "Đorđe Šašić"
+          speaker-bio: |
+            CI self-test speaker.
+
+            A second paragraph, to check that multi-line bios get through.
+          speaker-urls: |
+            https://example.com/
+            https://www.linkedin.com/in/example/
+          speaker-avatar-url: https://example.com/avatar.png
+          dry-run: "true"
+          config-path: tests/fixtures/coopkit.speaker-details.config.json
+          meetup-client-key: dummy
+          meetup-member-id: dummy
+          meetup-signing-key-id: dummy
+          meetup-private-key: dummy
+
+      - name: Assert speaker run outputs
+        env:
+          STATUS: ${{ steps.run-speaker.outputs.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ "$STATUS" = "dry-run" ] || { echo "::error::expected status=dry-run, got '$STATUS'"; exit 1; }
+          echo "Speaker run OK."

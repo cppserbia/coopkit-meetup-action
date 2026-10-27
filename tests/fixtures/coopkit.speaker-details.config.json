@@ -1,0 +1,9 @@
+{
+  "meetup": {
+    "groupUrlname": "self-test-group",
+    "speakerDetails": true,
+    "venues": {
+      "online": 999999999
+    }
+  }
+}

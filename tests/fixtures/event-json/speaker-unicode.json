@@ -1,0 +1,11 @@
+{
+  "id": "2026-12-01-self-test-event",
+  "title": "Self-test event",
+  "date": "2026-12-01T18:00:00Z",
+  "duration": "PT2H",
+  "venueKey": "online",
+  "speaker": {
+    "name": "Đorđe Šašić",
+    "bioMarkdown": "Đorđe Šašić — C++ developer from Niš.\nЂорђе Шашић."
+  }
+}

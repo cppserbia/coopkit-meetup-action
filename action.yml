@@ -40,6 +40,37 @@ inputs:
     required: false
     default: ""
 
+  # ── Speaker profile (Meetup Pro) ───────────────────────────────────────────
+  # Sent as the event's `speaker`. Meetup only receives it when the group opts
+  # in with `meetup.speakerDetails` in coopkit.config.json (Pro-network groups
+  # only), and the CLI skips a speaker that has no bio. Needs
+  # `@coopkit/meetup` >= 0.3.0.
+  speaker-name:
+    description: >-
+      Speaker's display name. Optional. The speaker is sent only when this is
+      set; the other `speaker-*` inputs are ignored without it.
+    required: false
+    default: ""
+  speaker-bio:
+    description: >-
+      Speaker bio (Markdown, multi-line allowed). Optional, but Meetup requires
+      it: a speaker without a bio is skipped with a warning.
+    required: false
+    default: ""
+  speaker-urls:
+    description: >-
+      Speaker profile URLs (personal site, LinkedIn, GitHub, ...), one per
+      line. Optional. Lines are trimmed and blank lines dropped.
+    required: false
+    default: ""
+  speaker-avatar-url:
+    description: >-
+      URL of the speaker's headshot. Optional. Passed through as `avatarUrl`;
+      uploading it as the speaker photo needs a future `@coopkit/meetup`
+      release, and older versions ignore it.
+    required: false
+    default: ""
+
   # ── Workflow control ───────────────────────────────────────────────────────
   dry-run:
     description: Print the GraphQL payload without calling the Meetup API.
@@ -122,6 +153,10 @@ runs:
         DESCRIPTION: ${{ inputs.description }}
         IMAGE_URL: ${{ inputs.image-url }}
         USER_ID: ${{ inputs.id }}
+        SPEAKER_NAME: ${{ inputs.speaker-name }}
+        SPEAKER_BIO: ${{ inputs.speaker-bio }}
+        SPEAKER_URLS: ${{ inputs.speaker-urls }}
+        SPEAKER_AVATAR_URL: ${{ inputs.speaker-avatar-url }}
       shell: bash
       run: |
         set -euo pipefail
@@ -143,6 +178,10 @@ runs:
           --arg venueKey "$VENUE_KEY" \
           --arg description "$DESCRIPTION" \
           --arg imageUrl "$IMAGE_URL" \
+          --arg speakerName "$SPEAKER_NAME" \
+          --arg speakerBio "$SPEAKER_BIO" \
+          --arg speakerUrls "$SPEAKER_URLS" \
+          --arg speakerAvatarUrl "$SPEAKER_AVATAR_URL" \
           '{
             id: $id,
             title: $title,
@@ -151,7 +190,16 @@ runs:
             venueKey: $venueKey
           }
           + (if $description == "" then {} else {description: $description} end)
-          + (if $imageUrl == "" then {} else {imageUrl: $imageUrl} end)' \
+          + (if $imageUrl == "" then {} else {imageUrl: $imageUrl} end)
+          + (if $speakerName == "" then {} else {
+              speaker: (
+                {name: $speakerName}
+                + (if $speakerBio == "" then {} else {bioMarkdown: $speakerBio} end)
+                + ([$speakerUrls | split("\n")[] | gsub("^\\s+|\\s+$"; "") | select(. != "")]
+                   | if length == 0 then {} else {socialUrls: .} end)
+                + (if $speakerAvatarUrl == "" then {} else {avatarUrl: $speakerAvatarUrl} end)
+              )
+            } end)' \
           > "$EVENT_JSON_PATH"
 
         echo "event-json=$EVENT_JSON_PATH" >> "$GITHUB_OUTPUT"
